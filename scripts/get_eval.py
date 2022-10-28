@@ -74,21 +74,21 @@ if __name__ == "__main__":
     modes = ["ori", "ft"]
     bert_tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
     bert_model = AutoModelForSequenceClassification.from_pretrained(
-        "../ft-models/bert", num_labels=2)
+        os.path.join(config["PATH"]["PrefixModel"], "bert"), num_labels=2)
     output_log = f"../logs/eval.log"
     with open(output_log, "w") as log_file:
         sys.stdout = log_file
         logging.basicConfig(
             format='%(asctime)s : %(levelname)s : %(message)s',
-            filemode="a", level=logging.INFO,
+            filemode="w", level=logging.INFO,
             filename=output_log)
         for model_card in model_cards:
             for mode in modes:
                 test_path = os.path.join(
                     config["PATH"]["PrefixTrans"], f"{mode}-{model_card}-adress.csv")
-                
                 test_df = prepare_dataset(test_path, "asr")
                 acc, auc_level, pred_df = evaluate_bert_sequence(
                     test_df, bert_model, bert_tokenizer)
                 sys.stdout.write(f"{mode} {model_card} acc: {acc}, auc: {auc_level}\n")
                 pred_df.to_csv(f"../pred/{mode}-{model_card}-pred.csv", index=False)
+        sys.stdout.write(f"Total time: {datetime.now()-start_time}\n")

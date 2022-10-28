@@ -115,7 +115,7 @@ if __name__ == "__main__":
     config = configparser.ConfigParser()
     config.read("config.ini")
     # if don't have a fine-tuned BERT model
-    if not os.path.exists("../ft-models/bert/"):
+    if not os.path.exists(os.path.join(config["PATH"]["PrefixModel"], "bert")):
         tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         tokenized_train = prepare_dataset(
             os.path.join(config["PATH"]["PrefixManifest"], "adr_train.csv"))
@@ -170,11 +170,11 @@ if __name__ == "__main__":
             gc.collect()
     # get BERT prediction label
     else:
-        model = AutoModelForSequenceClassification.from_pretrained(
-            "../ft-models/bert", num_labels=2)
-        tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
+        bert_model = AutoModelForSequenceClassification.from_pretrained(
+            os.path.join(config["PATH"]["PrefixModel"], "bert"), num_labels=2)
+        bert_tokenizer = AutoTokenizer.from_pretrained("bert-base-uncased")
         adr_test = prepare_dataset(
-            os.path.join(config["PATH"]["PrefixManifest"], "adr_train.csv"), token=False)
-        bert_res = evaluate_bert_sequence(adr_test, model, tokenizer)
+            os.path.join(config["PATH"]["PrefixManifest"], "adr_test.csv"), token=False)
+        bert_res = evaluate_bert_sequence(adr_test, bert_model, bert_tokenizer)
         bert_res.to_csv(
             "../followup/bert_verbatim_pred.csv", index=False)

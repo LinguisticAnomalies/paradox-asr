@@ -74,6 +74,7 @@ def prepare_dataset(file_path, trans_type):
         dt["text"] = dt["text"].str.lower()
     else:
         raise ValueError("Wrong transcript type")
+    dt = dt.sample(frac=1)
     return dt
 
 
